@@ -1,49 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct Node {
+    int val;
+    struct Node* next;
+} Node;
+
 typedef struct {
-    int ar[100];
-    int head;
-    int tail;
-    int cnt;
+    Node *front, *rear;
 } MyQueue;
 
-
 MyQueue* myQueueCreate() {
-    MyQueue* obj = malloc(sizeof(MyQueue));
-    obj->head = 0;
-    obj->tail = 0;
-    obj->cnt = 0;
+    MyQueue* obj = (MyQueue*)malloc(sizeof(MyQueue));
+    obj->front = obj->rear = NULL;
     return obj;
 }
 
 void myQueuePush(MyQueue* obj, int x) {
-    if(obj == NULL) return;
-    
-    obj->cnt++;
-    obj->ar[obj->tail] = x;
-    obj->tail = (obj->tail + 1)%100;
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->val = x;
+    newNode->next = NULL;
+    if (!obj->rear) obj->front = obj->rear = newNode;
+    else obj->rear->next = newNode, obj->rear = newNode;
 }
 
 int myQueuePop(MyQueue* obj) {
-    if(obj == NULL) return NULL;
-    
-    obj->cnt--;
-    obj->head = (obj->head + 1)%100;
-    return (obj->ar[(obj->head-1)%100]);
+    if (!obj->front) return -1;
+    int val = obj->front->val;
+    Node* temp = obj->front;
+    obj->front = obj->front->next;
+    if (!obj->front) obj->rear = NULL;
+    free(temp);
+    return val;
 }
 
 int myQueuePeek(MyQueue* obj) {
-    if(obj == NULL) return NULL;
-    
-    return obj->ar[obj->head];
+    return obj->front ? obj->front->val : -1;
 }
 
 bool myQueueEmpty(MyQueue* obj) {
-    if(obj == NULL) return false;
-    
-    return (obj->cnt?false:true);
+    return obj->front == NULL;
 }
 
 void myQueueFree(MyQueue* obj) {
-    if(obj == NULL) return;
+    while (!myQueueEmpty(obj)) myQueuePop(obj);
     free(obj);
 }
 
